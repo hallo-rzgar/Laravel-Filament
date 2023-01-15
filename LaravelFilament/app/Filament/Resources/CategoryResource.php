@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages;
 use App\Filament\Resources\CategoryResource\RelationManagers;
+use App\Filament\Resources\CategoryResource\RelationManagers\PostsRelationManager;
 use App\Models\Category;
 use Filament\Forms;
 use Filament\Resources\Form;
@@ -22,6 +23,7 @@ class CategoryResource extends Resource
     protected static ?string $model = Category::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-collection';
+    protected static ?string $recordTitleAttribute='name';
 
     public static function form(Form $form): Form
     {
@@ -43,7 +45,7 @@ class CategoryResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')->sortable(),
-                TextColumn::make('name')->limit(50)->sortable(),
+                TextColumn::make('name')->limit(50)->sortable()->searchable(),
                 TextColumn::make('slug')->limit(50)
 
             ])
@@ -61,7 +63,7 @@ class CategoryResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            PostsRelationManager::class
         ];
     }
 

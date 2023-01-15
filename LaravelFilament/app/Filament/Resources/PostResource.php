@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\PostResource\Pages;
 use App\Filament\Resources\PostResource\RelationManagers;
+use App\Filament\Resources\PostResource\Widgets\StatsOverview;
 use App\Models\Post;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
@@ -18,6 +19,7 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Tables\Columns\BooleanColumn;
+use Filament\Widgets\StatsOverviewWidget;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Illuminate\Support\Str;
@@ -56,14 +58,18 @@ class PostResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('id')->sortable(),
-                TextColumn::make('title')->limit(50)->sortable(),
+                TextColumn::make('title')->limit(50)->sortable()->searchable(),
                 TextColumn::make('slug')->limit(50),
                     BooleanColumn::make('is_published'),
                 SpatieMediaLibraryImageColumn::make('thumbnail')->collection('posts'),
 
             ])
             ->filters([
-                //
+                Tables\Filters\Filter::make('Published')
+                    ->query(fn (Builder $query): Builder => $query->where('is_published', true)),
+                Tables\Filters\Filter::make('UnPublished')
+                    ->query(fn (Builder $query): Builder => $query->where('is_published', false)),
+                Tables\Filters\SelectFilter::make('category')->relationship('category','name')
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -76,9 +82,17 @@ class PostResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\TagsRelationManager::class
         ];
     }
+
+    public static function getWidgets():  array
+    {
+        return [
+            StatsOverview::class
+            ];
+
+     }
 
     public static function getPages(): array
     {
